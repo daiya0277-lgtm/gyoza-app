@@ -1,65 +1,290 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  collection,
+  getDocs,
+  orderBy,
+  query,
+} from "firebase/firestore";
+import { db } from "../../lib/firebase"; // ★ここがポイント
+
+const PICKUP_DATE = "2025-11-30";
+
+export default function HomePage() {
+  const router = useRouter();
+
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
+
+  // Firestore から在庫を取得
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const q = query(collection(db, "products"), orderBy("sortOrder"));
+        const snap = await getDocs(q);
+        const list = snap.docs.map((d) => ({
+          id: d.id,
+          ...d.data(),
+        }));
+        setProducts(list);
+      } catch (err) {
+        console.error(err);
+        setFetchError("在庫情報の取得に失敗しました");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, []);
+
+  const handleReserveClick = () => {
+    router.push("/reserve");
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <main
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "#f5f5f7",
+        padding: "24px 16px 40px",
+        fontFamily:
+          "system-ui, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif",
+        color: "#111111",
+      }}
+    >
+      {/* 中央寄せコンテナ */}
+      <div
+        style={{
+          maxWidth: 960,
+          margin: "0 auto",
+        }}
+      >
+        {/* ヘッダー行 */}
+        <header
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 16,
+            gap: 12,
+          }}
+        >
+          <div>
+            <h1
+              style={{
+                fontSize: 24,
+                fontWeight: 700,
+                margin: 0,
+              }}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              ゼミ餃子予約サイト
+            </h1>
+            <p
+              style={{
+                margin: "4px 0 0",
+                fontSize: 12,
+                color: "#555",
+              }}
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+              事前予約専用ページです。当日はこの画面を提示してください。
+            </p>
+          </div>
+
+          {/* 管理画面へのリンク（右上） */}
+          <button
+            type="button"
+            onClick={() => router.push("/admin")}
+            style={{
+              border: "none",
+              background: "transparent",
+              fontSize: 12,
+              color: "#555",
+              cursor: "pointer",
+              textDecoration: "underline",
+            }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            管理画面へ
+          </button>
+        </header>
+
+        {/* 販売情報カード */}
+        <section
+          style={{
+            marginTop: 8,
+            marginBottom: 24,
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "#ffffff",
+              borderRadius: 16,
+              padding: 20,
+              boxShadow:
+                "0 18px 45px rgba(15, 23, 42, 0.08)",
+              border: "1px solid #eee",
+            }}
           >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+            <h2
+              style={{
+                fontSize: 16,
+                fontWeight: 600,
+                margin: "0 0 10px",
+              }}
+            >
+              販売情報
+            </h2>
+            <div
+              style={{
+                fontSize: 13,
+                lineHeight: 1.7,
+              }}
+            >
+              <div>
+                <span style={{ fontWeight: 600 }}>販売期間：</span>
+                {PICKUP_DATE}
+              </div>
+              <div>
+                <span style={{ fontWeight: 600 }}>受け取り時間：</span>
+                9:00〜19:00（30分刻み）
+              </div>
+              <div>
+                <span style={{ fontWeight: 600 }}>場所：</span>
+                今出川キャンパス
+              </div>
+              <div>
+                <span style={{ fontWeight: 600 }}>支払い方法：</span>
+                当日現金のみ
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 在庫読み込みステータス */}
+        {loading && <p>在庫情報を読み込み中です...</p>}
+        {fetchError && (
+          <p style={{ color: "red" }}>{fetchError}</p>
+        )}
+
+        {/* 商品カード一覧 */}
+        {!loading && !fetchError && (
+          <section>
+            <h2
+              style={{
+                fontSize: 16,
+                fontWeight: 600,
+                marginBottom: 12,
+              }}
+            >
+              商品一覧
+            </h2>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns:
+                  "repeat(auto-fit, minmax(260px, 1fr))",
+                gap: 20,
+              }}
+            >
+              {products.map((p) => (
+                <article
+                  key={p.id}
+                  style={{
+                    backgroundColor: "#ffffff",
+                    borderRadius: 16,
+                    padding: 20,
+                    boxShadow:
+                      "0 18px 45px rgba(15, 23, 42, 0.06)",
+                    border: "1px solid #eee",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    minHeight: 180,
+                  }}
+                >
+                  <div>
+                    <h3
+                      style={{
+                        fontSize: 16,
+                        fontWeight: 700,
+                        margin: "0 0 6px",
+                      }}
+                    >
+                      {p.name}
+                    </h3>
+                    <div
+                      style={{
+                        fontSize: 12,
+                        color: "#666",
+                        marginBottom: 4,
+                      }}
+                    >
+                      3個入り（1セット）
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 20,
+                        fontWeight: 700,
+                        marginBottom: 8,
+                      }}
+                    >
+                      {p.price}円
+                      <span
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 400,
+                          marginLeft: 4,
+                        }}
+                      >
+                        / セット
+                      </span>
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 12,
+                        color: "#777",
+                      }}
+                    >
+                      在庫：残り {p.stockRemaining} / {p.stockTotal} セット
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      marginTop: 16,
+                      display: "flex",
+                      justifyContent: "flex-end",
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onClick={handleReserveClick}
+                      style={{
+                        padding: "8px 20px",
+                        borderRadius: 999,
+                        border: "none",
+                        backgroundColor: "#f97316",
+                        color: "#ffffff",
+                        fontWeight: 600,
+                        fontSize: 14,
+                        cursor: "pointer",
+                        boxShadow:
+                          "0 12px 25px rgba(249, 115, 22, 0.35)",
+                      }}
+                    >
+                      予約する
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
+    </main>
   );
 }
