@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const ADMIN_PASSWORD = "zemi-gyoza"; // 好きなパスワードに変えてOK
+const ADMIN_PASSWORD = "0987"; // 好きなパスワードに変えてOK
 
 export default function AdminLoginPage() {
   const router = useRouter();

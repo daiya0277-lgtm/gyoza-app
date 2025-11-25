@@ -1,11 +1,9 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
-// ✅ 正しいパス
-import { db } from "../../../../lib/firebase";
-
-
+import { db } from "../../../../lib/firebase"; // ← ../ が４つ（ここが超重要）
 
 export default function CompletePageClient() {
   const searchParams = useSearchParams();
@@ -33,10 +31,7 @@ export default function CompletePageClient() {
         if (!snap.exists()) {
           setError("予約が見つかりませんでした。");
         } else {
-          setReservation({
-            id: snap.id,
-            ...snap.data(),
-          });
+          setReservation({ id: snap.id, ...snap.data() });
         }
       } catch (e) {
         console.error(e);
@@ -53,10 +48,10 @@ export default function CompletePageClient() {
     router.push("/");
   };
 
-  // ここから画面表示 ------------------------
+  // ここから画面表示 -----------------------------
 
   if (loading) {
-    return <div>読み込み中です...</div>;
+    return <div>読み込み中です…</div>;
   }
 
   if (error) {
@@ -69,21 +64,15 @@ export default function CompletePageClient() {
     );
   }
 
-  // reservation に入っているデータの例：
-  // 名前: reservation.name
-  // 電話番号: reservation.phone
-  // 受け取り時間: reservation.time など
-  // （フィールド名は、今Firestoreに保存しているものに合わせてね）
-
   return (
     <div>
       <h1>予約が完了しました</h1>
-      <p>予約ID: {reservation.id}</p>
+      <p>予約ID: {reservation?.id}</p>
 
       {/* 必要に応じて予約内容をここに表示 */}
-      {reservation.name && <p>お名前: {reservation.name}</p>}
-      {reservation.phone && <p>電話番号: {reservation.phone}</p>}
-      {reservation.time && <p>受け取り時間: {reservation.time}</p>}
+      {reservation?.name && <p>お名前：{reservation.name}</p>}
+      {reservation?.phone && <p>電話番号：{reservation.phone}</p>}
+      {reservation?.time && <p>受け取り時間：{reservation.time}</p>}
 
       <button onClick={handleBackTop} style={{ marginTop: "16px" }}>
         トップへ戻る
