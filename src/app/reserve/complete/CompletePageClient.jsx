@@ -5,6 +5,18 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../../../lib/firebase"; // ← パス注意！
 
+// 受け取り時間の表示用（フィールド名が違っても拾えるように）
+const getDisplayTime = (reservation) => {
+  if (!reservation) return "ー";
+  return (
+    reservation.time ||
+    reservation.pickupTime ||
+    reservation.pickup_time ||
+    reservation.reserveTime ||
+    "ー"
+  );
+};
+
 export default function CompletePageClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -69,6 +81,7 @@ export default function CompletePageClient() {
     fontSize: "28px",
     fontWeight: 700,
     margin: 0,
+    color: "#111827",
   };
 
   const cardStyle = {
@@ -93,11 +106,12 @@ export default function CompletePageClient() {
     fontSize: "22px",
     fontWeight: 700,
     margin: "0 0 8px",
+    color: "#111827",
   };
 
   const subTextStyle = {
     fontSize: "14px",
-    color: "#6b7280",
+    color: "#4b5563",
     margin: "0 0 24px",
   };
 
@@ -122,11 +136,12 @@ export default function CompletePageClient() {
 
   const infoValueStyle = {
     fontWeight: 500,
+    color: "#111827",
   };
 
   const idRowStyle = {
     fontSize: "13px",
-    color: "#4b5563",
+    color: "#6b7280",
     marginBottom: "12px",
     wordBreak: "break-all",
   };
@@ -152,7 +167,7 @@ export default function CompletePageClient() {
 
   const secondaryTextStyle = {
     fontSize: "12px",
-    color: "#9ca3af",
+    color: "#6b7280",
     marginTop: "8px",
   };
 
@@ -195,7 +210,11 @@ export default function CompletePageClient() {
             </p>
 
             <div style={buttonRowStyle}>
-              <button type="button" onClick={handleBackTop} style={primaryButtonStyle}>
+              <button
+                type="button"
+                onClick={handleBackTop}
+                style={primaryButtonStyle}
+              >
                 トップページに戻る
               </button>
             </div>
@@ -236,13 +255,16 @@ export default function CompletePageClient() {
             </div>
             <div style={infoRowStyle}>
               <span style={infoLabelStyle}>受け取り時間</span>
-              <span style={infoValueStyle}>{reservation.time || "ー"}</span>
+              <span style={infoValueStyle}>{getDisplayTime(reservation)}</span>
             </div>
-            {/* 必要なら他のフィールドもここに追加 */}
           </div>
 
           <div style={buttonRowStyle}>
-            <button type="button" onClick={handleBackTop} style={primaryButtonStyle}>
+            <button
+              type="button"
+              onClick={handleBackTop}
+              style={primaryButtonStyle}
+            >
               トップページに戻る
             </button>
           </div>
