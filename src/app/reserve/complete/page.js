@@ -1,14 +1,9 @@
-// src/app/reserve/complete/page.js
-import { Suspense } from "react";
-import CompletePageClient from "./CompletePageClient";
+"use client";
 
-// このページはクエリパラメータ（id）を使うので動的レンダリングにする
 export const dynamic = "force-dynamic";
 
+import CompletePageClient from "./CompletePageClient.jsx";
+
 export default function CompletePage() {
-  return (
-    <Suspense fallback={<div>読み込み中です...</div>}>
-      <CompletePageClient />
-    </Suspense>
-  );
+  return <CompletePageClient />;
 }
