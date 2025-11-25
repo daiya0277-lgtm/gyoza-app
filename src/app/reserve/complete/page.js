@@ -1,8 +1,6 @@
-"use client";
-
 export const dynamic = "force-dynamic";
 
-import CompletePageClient from "./CompletePageClient.jsx";
+import CompletePageClient from "./CompletePageClient";
 
 export default function CompletePage() {
   return <CompletePageClient />;

@@ -1,10 +1,11 @@
-// src/app/reserve/complete/CompletePageClient.jsx
 "use client";
 
-import { useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../../lib/firebase";
+// ✅ 正しいパス
+import { db } from "../../../../lib/firebase";
+
+
 
 export default function CompletePageClient() {
   const searchParams = useSearchParams();
